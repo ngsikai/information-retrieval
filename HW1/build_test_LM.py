@@ -16,7 +16,8 @@ def build_LM(in_file):
     # This is an empty method
     # Pls implement your code in below
 
-    train_input_list = open(in_file, 'r').read().split("\r\n")
+    input_file = open(in_file, 'r')
+    train_input_list = input_file.read().split("\r\n")
 
     four_gram_table = {}
     ngram_count = {'malaysian': 0, 'indonesian': 0, 'tamil': 0}
@@ -46,6 +47,8 @@ def build_LM(in_file):
                 ngram_count[language] += 1
     return [four_gram_table, ngram_count]
 
+    input_file.close()
+
 
 def test_LM(in_file, out_file, LM):
     """
@@ -60,12 +63,13 @@ def test_LM(in_file, out_file, LM):
     four_gram_table = LM[0]
     ngram_count = LM[1]
 
-    test_input_list = open(in_file, 'r').read().split("\r\n")
+    input_file = open(in_file, 'r')
+    test_input_list = input_file.read().split("\r\n")
     for sentence in test_input_list:
         if sentence == "":
             break
         ngram_score = {'malaysian': 0, 'indonesian': 0, 'tamil': 0}
-        no_counts = 0
+        invalid_ngram_count = 0
         total_ngram_count = 0
         char_list = list(sentence)
         for index in range(3):
@@ -78,14 +82,15 @@ def test_LM(in_file, out_file, LM):
                 for language, count in four_gram_table[four_gram].iteritems():
                     ngram_score[language] += math.log10(count/ngram_count[language])
             else:
-                no_counts += 1
+                invalid_ngram_count += 1
             total_ngram_count += 1
-        if max(ngram_score.itervalues()) == 0:
+        invalid_ngram_ratio = invalid_ngram_count / total_ngram_count
+        if max(ngram_score.itervalues()) is 0 or invalid_ngram_ratio > 0.6:
             predicted_language = 'other'
         else:
             predicted_language = max(ngram_score.iterkeys(), key=(lambda language: ngram_score[language]))
         # print ngram_score
-        print no_counts / total_ngram_count * 100
+        print predicted_language
         # print predicted_language
 
 
